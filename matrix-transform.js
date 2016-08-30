@@ -26,7 +26,9 @@ function transpose(m){
 }
 
 function dec2bin(dec){
-	return (dec >>> 0).toString(2);
+	var n = parseInt(dec, 10).toString(2);
+	n = "00000000".substr(n.length) + n;
+	return n;
 }
 
 function hex2bin(hex){
@@ -39,19 +41,20 @@ function charMatrixByColumn(ch, matrixFont){
 	var matrixRow = matrixFont[ch];
 
 	matrixRow.forEach(function(num, index){
-		matrixRow[index] = hex2bin(num).split('');
+		matrixRow[index] = dec2bin(num).split('');
 	});
-
-	// console.log(matrixRow);
+	//to hex
+	console.log(matrixRow);
 
 	matrixRow = transpose(matrixRow);
-
-	// console.log(matrixRow);
+	//row > column
+	console.log(matrixRow);
 
 	matrixRow.forEach(function(row, index){
 		matrixRow[index] = Number(parseInt(row.join(''), 2).toString(10));
 	});
-
+	//back to hex
+	console.log(matrixRow);
 	var matrixColumn = matrixRow;
 
 	return matrixColumn;

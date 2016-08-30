@@ -1,6 +1,8 @@
 var five = require("johnny-five");
 var board = new five.Board();
 
+var charMatrixByColumn = require("./matrix-transform.js");
+
 board.on("ready", function(){
 
 	var matrix = new five.Led.Matrix({
@@ -25,11 +27,18 @@ board.on("ready", function(){
 
 	 */
 	var display = matrix.device(0);
-	display.draw("A");
+	
 	var a = five.LedControl.MATRIX_CHARS;
-	console.log(a['A']);
+
+	var b = charMatrixByColumn('c', a);
+	for(i = 0; i < 8; i++){
+		display.column(i, b[i]);
+	}
+	
+	// console.log(a['b']);
 	this.repl.inject({
 		display: matrix.device(0),
-		a: a
+		a: a,
+		charMatrixByColumn: charMatrixByColumn
 	});
 });
