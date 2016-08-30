@@ -1,8 +1,18 @@
 var five = require("johnny-five");
-
 var board = new five.Board();
 
 board.on("ready", function() {
+
+  var heart = [
+    "01100110",
+    "10011001",
+    "10000001",
+    "10000001",
+    "01000010",
+    "00100100",
+    "00011000",
+    "00000000"
+  ];
 
   var matrix = new five.Led.Matrix({
     pins: {
@@ -14,22 +24,26 @@ board.on("ready", function() {
 
   matrix.on();
 
-  var shapes = Object.keys(five.Led.Matrix.CHARS);
+  var msg = "johnny-five".split("");
 
-  var enumerate = function() {
-    var i = 0;
-    board.loop(500, function() {
-      if (i < shapes.length) {
-        matrix.draw(five.Led.Matrix.CHARS[shapes[i]]);
-        i++;
-      }
-    });
-  };
+  // Display each letter for 1 second
+  function next() {
+    var c;
 
-  enumerate();
+    if (c = msg.shift()) {
+      matrix.draw(c);
+      setTimeout(next, 1000);
+    }
+  }
+
+  next();
 
   this.repl.inject({
     matrix: matrix,
-    enumerate: enumerate
+    // Type "heart()" in the REPL to
+    // display a heart!
+    heart: function() {
+      matrix.draw(heart);
+    }
   });
 });
