@@ -1,9 +1,23 @@
+/*
+  NOTE: In the video, there is a "winking smiley face" shown. 
+        This version of the program omits the "winking smiley 
+        face" for the sake of simplicity. Readers are encouraged 
+        to implement a solution to reproduce the "animation".
+*/
+var readline = require("readline");
 var five = require("johnny-five");
-var board = new five.Board();
+var board = new five.Board({
+  repl: false
+});
 
 board.on("ready", function() {
 
-  var matrix = new five.Led.Matrix({
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  var display = new five.Led.Matrix({
     pins: {
       data: 2,
       clock: 3,
@@ -11,21 +25,30 @@ board.on("ready", function() {
     }
   });
 
-  matrix.on();
+  var message = [];
 
-  /*
+  function update() {
+    if (message.length) {
+      // When a message is ready to be written,
+      // write one character at a time to device 0.
+      display.draw(0, message.shift());
 
-  A single Led.Matrix object can control one
-  or more led matrix devices. All methods of
-  Led.Matrix objects expect the target device's
-  index as their first argument. Since this
-  might seem cumbersome when there is only
-  one matrix device, use the `device()` method
-  to create a display device bound to an index.
+      // When the end of the message has been reached,
+      // show the readline prompt.
+      if (!message.length) {
+        rl.prompt();
+        return;
+      }
 
-  */
+      setTimeout(update, 500);
+    }
+  }
 
-  this.repl.inject({
-    display: matrix.device(0)
+  rl.prompt();
+  rl.on("line", function(text) {
+    message = (text + " ").split("");
+    update();
   });
+
+  display.on();
 });
