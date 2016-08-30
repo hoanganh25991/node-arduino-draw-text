@@ -44,17 +44,17 @@ function charMatrixByColumn(ch, matrixFont){
 		matrixRow[index] = dec2bin(num).split('');
 	});
 	//to hex
-	console.log(matrixRow);
+	// console.log(matrixRow);
 
 	matrixRow = transpose(matrixRow);
 	//row > column
-	console.log(matrixRow);
+	// console.log(matrixRow);
 
 	matrixRow.forEach(function(row, index){
 		matrixRow[index] = Number(parseInt(row.join(''), 2).toString(10));
 	});
 	//back to hex
-	console.log(matrixRow);
+	// console.log(matrixRow);
 	var matrixColumn = matrixRow;
 
 	return matrixColumn;

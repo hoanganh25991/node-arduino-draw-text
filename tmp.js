@@ -1,7 +1,8 @@
 var five = require("johnny-five");
 var board = new five.Board();
-
-var charMatrixByColumn = require("./matrix-transform.js");
+var charMatrixByColumn = require('./matrix-transform');
+// var drawText = require('./drawText');
+// console.log(drawText);
 
 board.on("ready", function(){
 
@@ -10,54 +11,55 @@ board.on("ready", function(){
 			data: 2,
 			clock: 3,
 			cs: 4
-		}
+		},
+		devices: 4
 	});
 
 	matrix.on();
 
-	/*
-
-	 A single Led.Matrix object can control one
-	 or more led matrix devices. All methods of
-	 Led.Matrix objects expect the target device's
-	 index as their first argument. Since this
-	 might seem cumbersome when there is only
-	 one matrix device, use the `device()` method
-	 to create a display device bound to an index.
-
-	 */
-	var display = matrix.device(0);
+	// var display = matrix.device(0);
 	
-	var a = five.LedControl.MATRIX_CHARS;
+	// var matrixFont = five.LedControl.MATRIX_CHARS;
 
-	function drawCh(ch){
-		var tmp = {};
 
-		var b = charMatrixByColumn(ch, a);
+	// var drawText = function (text){
+	// 	var tmp = {};
+	//
+	// 	var charArr = text.split('');
+	//
+	// 	// console.log(charArr);
+	// 	var bArr = [];
+	//
+	// 	charArr.forEach(function(ch){
+	// 		bArr = bArr.concat(charMatrixByColumn(ch, matrixFont));
+	// 		// var a = charMatrixByColumn(ch, matrixFont);
+	// 		// console.log(a);
+	// 		// bArr = bArr.concat([1,2]);
+	// 	});
+	//
+	// 	// console.log(bArr);
+	//
+	// 	var refresh = setInterval(function(){
+	// 		display.clear();
+	// 		for(var i = 0; i < 8; i++){
+	// 			display.column(i, bArr[i]);
+	// 		}
+	//
+	// 		var b0 = bArr[0];
+	// 		bArr.splice(0, 1);
+	// 		bArr.push(b0);
+	// 	}, 100);
+	//
+	// 	tmp.refresh = refresh;
+	//
+	// 	return tmp.refresh;
+	// };
+	//
+	// drawText('anh le hoang');
 
-		var refresh = setInterval(function(){
-			display.clear();
-			for(i = 0; i < 8; i++){
-				display.column(i, b[i]);
-			}
-
-			var b0 = b[0];
-			b.splice(0, 1);
-			b.push(b0);
-			// display.draw();
-		}, 500);
-
-		tmp.refresh = refresh;
-
-		return tmp;
-	};
-
-	var drawCh = drawCh('c');
-	
 	// console.log(a['b']);
 	this.repl.inject({
-		display: matrix.device(0),
-		a: a,
-		charMatrixByColumn: charMatrixByColumn
+		matrix: matrix,
+		// matrixFont: matrixFont
 	});
 });
