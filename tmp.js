@@ -1,5 +1,5 @@
 var five = require("johnny-five");
-var board = new five.Board();
+var board = new five.Board({port: 'COM7'});
 
 var buildSpiData = require('./matrix-on-txt');
 
@@ -19,7 +19,7 @@ board.on("ready", function(){
 	var matrixFont = five.LedControl.MATRIX_CHARS;
 
 	/** @var array eightSpiData */
-	var eightSpiData = buildSpiData('ma no', matrixFont);
+	var eightSpiData = buildSpiData('mano', matrixFont);
 
 	eightSpiData.forEach(function(spiData){
 		// var spiData =   [ 21, 7, 15, 7, 0, 7, 17, 7 ];
