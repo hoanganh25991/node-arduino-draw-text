@@ -19,7 +19,7 @@ board.on("ready", function(){
 	var matrixFont = five.LedControl.MATRIX_CHARS;
 
 	/** @var array eightSpiData */
-	var eightSpiData = buildSpiData('mano', matrixFont);
+	var eightSpiData = buildSpiData('onam', matrixFont);
 
 	eightSpiData.forEach(function(spiData){
 		// var spiData =   [ 21, 7, 15, 7, 0, 7, 17, 7 ];
@@ -27,6 +27,7 @@ board.on("ready", function(){
 		matrix.io.digitalWrite(matrix.pins.cs, matrix.io.LOW);
 
 		for (var j = spiData.length; j > 0; j--) {
+		// for (var j = 0; j < spiData.length; j++) {
 			matrix.board.shiftOut(matrix.pins.data, matrix.pins.clock, spiData[j - 1]);
 		}
 
