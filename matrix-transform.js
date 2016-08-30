@@ -35,7 +35,7 @@ function hex2bin(hex){
 	return n;
 }
 
-function drawByColumn(ch, matrixFont){
+function charMatrixByColumn(ch, matrixFont){
 	var matrixRow = matrixFont[ch];
 
 	matrixRow.forEach(function(num, index){
@@ -88,4 +88,6 @@ function drawByColumn(ch, matrixFont){
 
 // console.log(charA);
 
-console.log(drawByColumn("A", {"A": [8, 20, 34, 62, 34, 34, 34, 34]}));
+// console.log(charMatrixByColumn("A", {"A": [8, 20, 34, 62, 34, 34, 34, 34]}));
+
+module.exports = charMatrixByColumn;
