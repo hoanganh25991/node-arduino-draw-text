@@ -1,8 +1,7 @@
 var five = require("johnny-five");
 var board = new five.Board();
-var charMatrixByColumn = require('./matrix-transform');
-// var drawText = require('./drawText');
-// console.log(drawText);
+
+var buildSpiData = require('./matrix-on-txt');
 
 board.on("ready", function(){
 
@@ -17,49 +16,24 @@ board.on("ready", function(){
 
 	matrix.on();
 
-	// var display = matrix.device(0);
-	
-	// var matrixFont = five.LedControl.MATRIX_CHARS;
+	var matrixFont = five.LedControl.MATRIX_CHARS;
 
+	/** @var array eightSpiData */
+	var eightSpiData = buildSpiData('ma no', matrixFont);
 
-	// var drawText = function (text){
-	// 	var tmp = {};
-	//
-	// 	var charArr = text.split('');
-	//
-	// 	// console.log(charArr);
-	// 	var bArr = [];
-	//
-	// 	charArr.forEach(function(ch){
-	// 		bArr = bArr.concat(charMatrixByColumn(ch, matrixFont));
-	// 		// var a = charMatrixByColumn(ch, matrixFont);
-	// 		// console.log(a);
-	// 		// bArr = bArr.concat([1,2]);
-	// 	});
-	//
-	// 	// console.log(bArr);
-	//
-	// 	var refresh = setInterval(function(){
-	// 		display.clear();
-	// 		for(var i = 0; i < 8; i++){
-	// 			display.column(i, bArr[i]);
-	// 		}
-	//
-	// 		var b0 = bArr[0];
-	// 		bArr.splice(0, 1);
-	// 		bArr.push(b0);
-	// 	}, 100);
-	//
-	// 	tmp.refresh = refresh;
-	//
-	// 	return tmp.refresh;
-	// };
-	//
-	// drawText('anh le hoang');
+	eightSpiData.forEach(function(spiData){
+		// var spiData =   [ 21, 7, 15, 7, 0, 7, 17, 7 ];
 
-	// console.log(a['b']);
+		matrix.io.digitalWrite(matrix.pins.cs, matrix.io.LOW);
+
+		for (var j = spiData.length; j > 0; j--) {
+			matrix.board.shiftOut(matrix.pins.data, matrix.pins.clock, spiData[j - 1]);
+		}
+
+		matrix.io.digitalWrite(matrix.pins.cs, matrix.io.HIGH);
+	});
+
 	this.repl.inject({
-		matrix: matrix,
-		// matrixFont: matrixFont
+		matrix: matrix
 	});
 });
