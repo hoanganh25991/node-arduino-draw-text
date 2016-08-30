@@ -1,49 +1,109 @@
+var temporal = require("temporal");
+var readline = require("readline");
 var five = require("johnny-five");
+// var board = new five.Board({
+//   repl: false
+// });
 var board = new five.Board();
 
+var CHARS = five.LedControl.MATRIX_CHARS;
+
 board.on("ready", function() {
+  var canWink = true;
+  var output = "";
+  var index = 0;
 
-  var heart = [
-    "01100110",
-    "10011001",
-    "10000001",
-    "10000001",
-    "01000010",
-    "00100100",
-    "00011000",
-    "00000000"
-  ];
-
-  var matrix = new five.Led.Matrix({
-    pins: {
-      data: 2,
-      clock: 3,
-      cs: 4
-    }
+  var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
   });
 
-  matrix.on();
+  var display = new five.Led.Matrix({
+    pins: {
+      data: 2,
+      cs: 3,
+      clock: 4,
+    },
+    devices: 2
+  });
 
-  var msg = "johnny-five".split("");
+  display.on(0);
+  display.on(1);
 
-  // Display each letter for 1 second
-  function next() {
-    var c;
+  function draw() {
+    if (output.length) {
 
-    if (c = msg.shift()) {
-      matrix.draw(c);
-      setTimeout(next, 1000);
+      if (CHARS[output]) {
+        display.draw(0, CHARS[output]);
+
+        output = 0;
+        index = 0;
+      } else {
+        display.draw(0, output[index++]);
+      }
+
+      // Reached the end?
+      if (index === output.length) {
+        setTimeout(function() {
+          canWink = true;
+        }, 100);
+        index = 0;
+        return;
+      }
+
+      setTimeout(draw, 500);
     }
   }
 
-  next();
 
-  this.repl.inject({
-    matrix: matrix,
-    // Type "heart()" in the REPL to
-    // display a heart!
-    heart: function() {
-      matrix.draw(heart);
+  function winker() {
+    var a = [0, 102, 102, 102, 0, 129, 66, 60];
+    var b = [0, 96, 96, 102, 0, 129, 66, 60];
+
+    if (canWink) {
+      display.draw(1, a);
     }
+
+    temporal.queue([{
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, b);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, a);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, b);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, a);
+        }
+        temporal.wait(4000, winker);
+      }
+    }]);
+  }
+
+  winker();
+
+  rl.prompt();
+  rl.on("line", function(text) {
+    output = text;
+    canWink = false;
+    rl.prompt();
+    draw();
   });
+
 });
