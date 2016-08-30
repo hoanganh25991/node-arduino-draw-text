@@ -1,4 +1,5 @@
 var five = require("johnny-five");
+
 var board = new five.Board();
 
 board.on("ready", function() {
@@ -13,11 +14,22 @@ board.on("ready", function() {
 
   matrix.on();
 
-  // type `draw("shape_name")` into the repl to see the shape!  
+  var shapes = Object.keys(five.Led.Matrix.CHARS);
+
+  var enumerate = function() {
+    var i = 0;
+    board.loop(500, function() {
+      if (i < shapes.length) {
+        matrix.draw(five.Led.Matrix.CHARS[shapes[i]]);
+        i++;
+      }
+    });
+  };
+
+  enumerate();
+
   this.repl.inject({
     matrix: matrix,
-    draw: function(shape) {
-      matrix.draw(five.Led.Matrix.CHARS[shape]);
-    }
+    enumerate: enumerate
   });
 });
