@@ -48,7 +48,7 @@ var buildSpiData = function (txt, font){
 		eightSpiData.push(tmp);
 	});
 
-	console.log(eightSpiData);
+	// console.log(eightSpiData);
 
 	// dataArr.
 
