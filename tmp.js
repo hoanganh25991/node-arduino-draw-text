@@ -30,10 +30,29 @@ board.on("ready", function(){
 	
 	var a = five.LedControl.MATRIX_CHARS;
 
-	var b = charMatrixByColumn('c', a);
-	for(i = 0; i < 8; i++){
-		display.column(i, b[i]);
-	}
+	function drawCh(ch){
+		var tmp = {};
+
+		var b = charMatrixByColumn(ch, a);
+
+		var refresh = setInterval(function(){
+			display.clear();
+			for(i = 0; i < 8; i++){
+				display.column(i, b[i]);
+			}
+
+			var b0 = b[0];
+			b.splice(0, 1);
+			b.push(b0);
+			// display.draw();
+		}, 500);
+
+		tmp.refresh = refresh;
+
+		return tmp;
+	};
+
+	var drawCh = drawCh('c');
 	
 	// console.log(a['b']);
 	this.repl.inject({

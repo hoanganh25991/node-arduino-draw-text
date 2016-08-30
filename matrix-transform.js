@@ -1,4 +1,4 @@
-var _f = {};
+var b = {};
 function transpose(m){
 	var mt;
 
@@ -92,5 +92,4 @@ function charMatrixByColumn(ch, matrixFont){
 // console.log(charA);
 
 // console.log(charMatrixByColumn("A", {"A": [8, 20, 34, 62, 34, 34, 34, 34]}));
-
 module.exports = charMatrixByColumn;
