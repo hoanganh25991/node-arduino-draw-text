@@ -1,16 +1,16 @@
-/*
-  NOTE: In the video, there is a "winking smiley face" shown. 
-        This version of the program omits the "winking smiley 
-        face" for the sake of simplicity. Readers are encouraged 
-        to implement a solution to reproduce the "animation".
-*/
+var temporal = require("temporal");
 var readline = require("readline");
 var five = require("johnny-five");
 var board = new five.Board({
   repl: false
 });
 
+var CHARS = five.LedControl.MATRIX_CHARS;
+
 board.on("ready", function() {
+  var canWink = true;
+  var output = "";
+  var index = 0;
 
   var rl = readline.createInterface({
     input: process.stdin,
@@ -20,35 +20,89 @@ board.on("ready", function() {
   var display = new five.Led.Matrix({
     pins: {
       data: 2,
-      clock: 3,
-      cs: 4
-    }
+      cs: 3,
+      clock: 4,
+    },
+    devices: 2
   });
 
-  var message = [];
+  display.on(0);
+  display.on(1);
 
-  function update() {
-    if (message.length) {
-      // When a message is ready to be written,
-      // write one character at a time to device 0.
-      display.draw(0, message.shift());
+  function draw() {
+    if (output.length) {
 
-      // When the end of the message has been reached,
-      // show the readline prompt.
-      if (!message.length) {
-        rl.prompt();
+      if (CHARS[output]) {
+        display.draw(0, CHARS[output]);
+
+        output = 0;
+        index = 0;
+      } else {
+        display.draw(0, output[index++]);
+      }
+
+      // Reached the end?
+      if (index === output.length) {
+        setTimeout(function() {
+          canWink = true;
+        }, 100);
+        index = 0;
         return;
       }
 
-      setTimeout(update, 500);
+      setTimeout(draw, 500);
     }
   }
 
+
+  function winker() {
+    var a = [0, 102, 102, 102, 0, 129, 66, 60];
+    var b = [0, 96, 96, 102, 0, 129, 66, 60];
+
+    if (canWink) {
+      display.draw(1, a);
+    }
+
+    temporal.queue([{
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, b);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, a);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, b);
+        }
+      }
+    }, {
+      delay: 50,
+      task: function() {
+        if (canWink) {
+          display.draw(1, a);
+        }
+        temporal.wait(4000, winker);
+      }
+    }]);
+  }
+
+  winker();
+
   rl.prompt();
   rl.on("line", function(text) {
-    message = (text + " ").split("");
-    update();
+    output = text;
+    canWink = false;
+    rl.prompt();
+    draw();
   });
 
-  display.on();
 });
