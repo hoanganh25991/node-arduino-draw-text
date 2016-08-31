@@ -2,7 +2,7 @@ var transpose = require('./transpose');
 
 var chunk = require('./chunk-array');
 
-var buffer = function(txt, font){
+var buffer = function(txt, font, numOfDevices){
 	var dataArr;
 	var memory;
 	var spiArr;
@@ -10,7 +10,15 @@ var buffer = function(txt, font){
 	var moveLeft;
 
 	//[][][][]=DC, the first one is the last one
-	var charArr = txt.split('').reverse();
+	// var charArr = txt.split('').reverse();
+	var charArr = txt.split('');
+
+	//compare charArr vs devices
+	//if not engouh char for devices
+	//use [blank] ['']
+	for(var i = 0; i < numOfDevices; i++){
+		charArr[i] == undefined ? charArr[i] = ' ' : false;
+	}
 
 	dataArr = [];
 
@@ -18,19 +26,20 @@ var buffer = function(txt, font){
 		dataArr.push(font[char]);
 		// [
 		// 	[8, 9, 10, 11, 12, 13, 14, 15], //a character
-		// 	[8, 9, 10, 11, 12, 13, 14, 15], //a character
-		// 	[8, 9, 10, 11, 12, 13, 14, 15], //a character
-		// 	[8, 9, 10, 11, 12, 13, 14, 15] //a character
+		// 	[25, 9, 10, 11, 12, 13, 14, 15], //a character
+		// 	[6, 9, 10, 11, 12, 13, 14, 15], //a character
+		// 	[56, 9, 10, 11, 12, 13, 14, 15] //a character
+		// 	[23, 9, 10, 11, 12, 13, 14, 15] //a character
 		// ]
 	});
 
 	dataArr = transpose(dataArr);
 	// [
-	// 	[8, 8, 8, 8],   //all data for 4 devices in row 1
-	// 					//=> spinData = [8, 1, 8, 1, 8, 1, 8, 1]
-	// 	[9 , 9, 9, 9],
+	// 	[8, 25, 6, 56, 23],     //all data for 4 devices in row 1
+	// 					        //=> spinData = [8, 1, 8, 1, 8, 1, 8, 1]
+	// 	[9 , 9, 9, 9, 9],
 	// 	...
-	// 	[15, 15, 15, 15]
+	// 	[15, 15, 15, 15, 15]
 	// ]
 
 	// console.log(dataArr);
@@ -80,7 +89,27 @@ var buffer = function(txt, font){
 	buildSpiData = function(){
 		var eightSpiData = [];
 		// console.log(dataArr);
-		dataArr.forEach(function(rowValDevices, index){
+		//base on NUM of DEVICEs
+		//2 characters, 4 devices > 2 dummy [0000]
+		//6 characters, 4 devices > ONLY build with 4
+		//memory handle the rest
+
+		var tmpDataArr = [];
+		memory.forEach(function(row){
+			/** @var Array b */
+			var b = chunk(8, row);
+			var rowData = [];
+			// for(var i = b.length; i > (b.length - numOfDevices); i--){
+			// 	rowData.push(b[(i-1)]);
+			// }
+			for(var i = 0; i < numOfDevices; i++){
+				rowData.push(b[(numOfDevices - 1) - i]);
+			}
+			tmpDataArr.push(rowData);
+		});
+		// console.log(tmpDataArr);
+
+		tmpDataArr.forEach(function(rowValDevices, index){
 			var spiData = [];
 			rowValDevices.forEach(function(rowVal){
 				spiData.push(rowVal);
@@ -128,12 +157,15 @@ var buffer = function(txt, font){
 			row.push(row0);
 		});
 
-		//build back to dataArr
-		memory.forEach(function(row, index){
-			dataArr[index] = chunk(8, row);
-		});
+		console.log('memory > row > length: ', memory[0].length);
+		console.log('memory > row: ', memory[0]);
 
-		console.log(dataArr[0][0]);
+		//build back to dataArr
+		// memory.forEach(function(row, index){
+		// 	dataArr[index] = chunk(8, row);
+		// });
+
+		// console.log(memory[0][0], memory[0][1], memory[0][2], memory[0][3]);
 
 		this.spiData = buildSpiData();
 	};

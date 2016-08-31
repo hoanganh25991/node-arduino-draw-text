@@ -1,18 +1,39 @@
 var five = require('johnny-five');
 var board = new five.Board({ port: 'COM7' });
+var drawText = require('./draw-text');
 
 board.on('ready', function() {
-    var led = new five.Led(13);
-    led.on();
+	var matrix = new five.Led.Matrix({
+		pins: {
+			data: 2,
+			clock: 3,
+			cs: 4
+		},
+		devices: 4
+	});
+	matrix.on();
 
+	// for(var i = 0; i < matrix.devices; i++){
+	// 	matrix.on(i);
+	// }
 
-    // Create an Led on pin 13 and strobe it on/off
-    // Optionall set the speed; defaults to 100ms
-    // led.strobe();
+	matrix.drawText = drawText.bind(matrix);
 
+	var buffer = require('./buffer')(
+						'123456789',
+						five.LedControl.MATRIX_CHARS,
+						matrix.devices
+					);
 
-    this.on('exit', function() {
-        led.off();
-    });
+	board.loop(500, function(){
+		// console.log(buffer.spiData[0]);
+		matrix.drawText(buffer.spiData);
+		buffer.moveLeft();
+	});
+
+	this.repl.inject({
+		matrix: matrix,
+		buffer: buffer
+	});
 
 });

@@ -36,7 +36,6 @@ board.on("ready", function(){
 					matrix.io.digitalWrite(3, 1);
 				}
 			}
-
 			matrix.io.digitalWrite(matrix.pins.cs, matrix.io.HIGH);
 		});
 	};
