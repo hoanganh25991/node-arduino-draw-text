@@ -1,10 +1,18 @@
 var transpose = require('./transpose');
 
-var buildSpiData = function (txt, font){
-	//reverse bcs [o][n][a][m]=DC-5v
-	var charArr = txt.split('').reverse();
+var chunk = require('./chunk-array');
 
-	var dataArr = [];
+var buffer = function(txt, font){
+	var dataArr;
+	var memory;
+	var spiArr;
+	var buildSpiData;
+	var spiData;
+	var moveLeft;
+
+	var charArr = txt.split('');
+
+	dataArr = [];
 
 	charArr.forEach(function(char){
 		dataArr.push(font[char]);
@@ -18,46 +26,116 @@ var buildSpiData = function (txt, font){
 
 	dataArr = transpose(dataArr);
 	// [
-	// 	[8, 8, 8, 8],   //all data for 4 devices in row 1 
-	// 					//=> spiData = [8, 1, 8, 1, 8, 1, 8, 1]
+	// 	[8, 8, 8, 8],   //all data for 4 devices in row 1
+	// 					//=> spinData = [8, 1, 8, 1, 8, 1, 8, 1]
 	// 	[9 , 9, 9, 9],
 	// 	...
 	// 	[15, 15, 15, 15]
 	// ]
 
-	var eightSpiData = [];
-
-	dataArr.forEach(function(row, index){
-		//row = [8, 8, 8, 8]
-		var rowOrder = index + 1;
-		var spiData = [row[0], rowOrder, row[1], rowOrder, row[2], rowOrder, row[3], rowOrder];
-		//spiData [23, rowX, 45, rowX, 65, rowX, 67, rowX], 4 times <=> 4 devices
-
-		//split each val into binary "00001010"
-		var tmp = [];
-		spiData.forEach(function(rowVal){
+	dataArr.forEach(function(rowMutipleDevices){
+		rowMutipleDevices.forEach(function(rowVal, index){
 			var n = parseInt(rowVal, 10).toString(2);
 			n = "00000000".substr(n.length) + n;
 			var io = n.split('');
 			io.forEach(function(bin, index){
 				io[index] = Number(bin);
 			});
-			tmp = tmp.concat(io);
+			rowMutipleDevices[index] = io;
 		});
+	});
+	// dataArr = [
+	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
+	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
+	// 	...
+	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
+	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
+	// ];
 
-		eightSpiData.push(tmp);
+	memory = [];
+	dataArr.forEach(function(rowValDevices, index){
+		var tmp = [];
+		rowValDevices.forEach(function(rowVal){
+			tmp = tmp.concat(rowVal);
+		});
+		memory[index] = tmp;
 	});
 
-	// console.log(eightSpiData);
+	spiArr = [1, 2, 3, 4, 5, 6, 7, 8];
+	spiArr.forEach(function(rowVal, index){
+		var n = parseInt(rowVal, 10).toString(2);
+		n = "00000000".substr(n.length) + n;
+		var io = n.split('');
+		io.forEach(function(bin, index){
+			io[index] = Number(bin);
+		});
+		spiArr[index] = io;
+	});
 
-	// eightSpiData.forEach(function(row, index){
-	// 	var row0 = row[0];
-	// 	row.splice(0, 1);
-	// 	row.push(row0);
-	// 	eightSpiData[index] = row;
-	// });
+	buildSpiData = function(){
+		var eightSpiData = [];
 
-	return eightSpiData;
+		dataArr.forEach(function(row, index){
+			var spiData = [
+				row[0], spiData[index],
+				row[1], spiData[index],
+				row[2], spiData[index],
+				row[3], spiData[index]
+			];
+			// spiData = [
+			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0], //[val], [rowX]
+			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],
+			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],
+			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0]
+			// ];
+			//4 times <=> 4 devices
+
+			//split each val into binary "00001010"
+			var tmp = [];
+			spiData.forEach(function(arr){
+				tmp.concat(arr);
+			});
+
+			eightSpiData.push(tmp);
+		});
+
+		spiData = eightSpiData;
+	};
+
+	moveLeft = function(){
+		//in BAD case, memory not built by dataArr, rebuild
+		if(memory.length == 0){
+			//build each row into SINGLE arr
+			dataArr.forEach(function(rowValDevices, index){
+				var tmp = [];
+				rowValDevices.forEach(function(rowVal){
+					tmp = tmp.concat(rowVal);
+				});
+				memory[index] = tmp;
+			});
+		}
+
+		//move to left
+		memory.forEach(function(row){
+			var row0 = row[0];
+			row.splice(0, 1);
+			row.push(row0);
+		});
+
+		//build back to dataArr
+		memory.forEach(function(row, index){
+			dataArr[index] = chunk(8, row);
+		});
+
+		buildSpiData();
+	};
+
+	return {
+		spiData: buildSpiData(),
+		moveLeft: moveLeft
+	};
+
+
 };
 
-module.exports = buildSpiData;
+module.exports = buffer;
