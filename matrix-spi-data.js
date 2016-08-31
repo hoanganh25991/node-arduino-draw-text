@@ -50,7 +50,12 @@ var buildSpiData = function (txt, font){
 
 	// console.log(eightSpiData);
 
-	// dataArr.
+	// eightSpiData.forEach(function(row, index){
+	// 	var row0 = row[0];
+	// 	row.splice(0, 1);
+	// 	row.push(row0);
+	// 	eightSpiData[index] = row;
+	// });
 
 	return eightSpiData;
 };
