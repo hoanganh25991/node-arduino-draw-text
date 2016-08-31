@@ -33,6 +33,8 @@ var buffer = function(txt, font){
 	// 	[15, 15, 15, 15]
 	// ]
 
+	// console.log(dataArr);
+
 	dataArr.forEach(function(rowMutipleDevices){
 		rowMutipleDevices.forEach(function(rowVal, index){
 			var n = parseInt(rowVal, 10).toString(2);
@@ -44,6 +46,7 @@ var buffer = function(txt, font){
 			rowMutipleDevices[index] = io;
 		});
 	});
+	// console.log(dataArr);
 	// dataArr = [
 	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
 	// 	[[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],[...], [...]]
@@ -60,6 +63,7 @@ var buffer = function(txt, font){
 		});
 		memory[index] = tmp;
 	});
+	// console.log(memory);
 
 	spiArr = [1, 2, 3, 4, 5, 6, 7, 8];
 	spiArr.forEach(function(rowVal, index){
@@ -71,17 +75,17 @@ var buffer = function(txt, font){
 		});
 		spiArr[index] = io;
 	});
+	// console.log(spiArr);
 
 	buildSpiData = function(){
 		var eightSpiData = [];
-
-		dataArr.forEach(function(row, index){
-			var spiData = [
-				row[0], spiData[index],
-				row[1], spiData[index],
-				row[2], spiData[index],
-				row[3], spiData[index]
-			];
+		// console.log(dataArr);
+		dataArr.forEach(function(rowValDevices, index){
+			var spiData = [];
+			rowValDevices.forEach(function(rowVal){
+				spiData.push(rowVal);
+				spiData.push(spiArr[index]);
+			});
 			// spiData = [
 			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0], //[val], [rowX]
 			// 	[0, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 0, 0, 0, 0],
@@ -93,11 +97,13 @@ var buffer = function(txt, font){
 			//split each val into binary "00001010"
 			var tmp = [];
 			spiData.forEach(function(arr){
-				tmp.concat(arr);
+				tmp = tmp.concat(arr);
 			});
 
 			eightSpiData.push(tmp);
 		});
+
+		// console.log(eightSpiData);
 
 		spiData = eightSpiData;
 	};
@@ -130,8 +136,10 @@ var buffer = function(txt, font){
 		buildSpiData();
 	};
 
+	buildSpiData();
+
 	return {
-		spiData: buildSpiData(),
+		spiData: spiData,
 		moveLeft: moveLeft
 	};
 

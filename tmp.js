@@ -2,9 +2,11 @@ var five = require("johnny-five");
 var board = new five.Board({port: 'COM7'});
 
 // var buildSpiData = require('./matrix-on-txt');
-var buildSpiData = require('./matrix-spi-data');
+// var buildSpiData = require('./matrix-spi-data');
 
-var sleep = require('./sleep');
+// var sleep = require('./sleep');
+
+var bufferF = require('./matrix-spi-data');
 
 board.on("ready", function(){
 
@@ -21,52 +23,35 @@ board.on("ready", function(){
 
 	var matrixFont = five.LedControl.MATRIX_CHARS;
 
-	var drawText = function(txt){
-		/** @var array eightSpiData */
-		var eightSpiData = buildSpiData(txt, matrixFont);
+	var drawText = function(eightSpiData){
+		eightSpiData.forEach(function(spiData){
 
-		// eightSpiData.forEach(function(row, index){
-		// 	var row0 = row[0];
-		// 	row.splice(0, 1);
-		// 	row.push(row0);
-		// 	eightSpiData[index] = row;
-		// });
+			matrix.io.digitalWrite(matrix.pins.cs, matrix.io.LOW);
 
-		// board.loop(10000, function(){
-			matrix.clear();
-
-			// sleep(4000);
-
-			eightSpiData.forEach(function(spiData){
-				matrix.io.digitalWrite(matrix.pins.cs, matrix.io.LOW);
-
-				for(var j = 8; j > 0; j--){
-					for(var i = 0; i < 8; i++){
-						matrix.io.digitalWrite(3, 0);
-						matrix.io.digitalWrite(2, spiData[8 * (j - 1) + i]);
-						// matrix.io.digitalWrite(2, Math.floor(Math.random() * 2));
-						matrix.io.digitalWrite(3, 1);
-					}
+			for(var j = 8; j > 0; j--){
+				for(var i = 0; i < 8; i++){
+					matrix.io.digitalWrite(3, 0);
+					matrix.io.digitalWrite(2, spiData[8 * (j - 1) + i]);
+					// matrix.io.digitalWrite(2, Math.floor(Math.random() * 2));
+					matrix.io.digitalWrite(3, 1);
 				}
+			}
 
-				matrix.io.digitalWrite(matrix.pins.cs, matrix.io.HIGH);
-			});
-
-			// eightSpiData.forEach(function(row){
-			// 	var row0 = row[0];
-			// 	row.splice(0, 1);
-			// 	row.push(row0);
-			// });
-		// });
-
-		// var update = function(){
-
-		// };
+			matrix.io.digitalWrite(matrix.pins.cs, matrix.io.HIGH);
+		});
 	};
 
-	// update();
+	var buffer = bufferF('aa', matrixFont);
 
-	// var refresh = setInterval(update, 1000);
+	// console.log(buffer.spiData);
+
+	drawText(buffer.spiData);
+	buffer.moveLeft();
+
+	board.loop(5000, function(){
+		drawText(buffer.spiData);
+		buffer.moveLeft();
+	});
 
 	this.repl.inject({
 		drawText: drawText,
