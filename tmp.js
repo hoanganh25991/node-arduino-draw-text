@@ -41,7 +41,7 @@ board.on("ready", function(){
 		});
 	};
 
-	var buffer = bufferF('aa', matrixFont);
+	var buffer = bufferF('abcd', matrixFont);
 
 	// console.log(buffer.spiData);
 

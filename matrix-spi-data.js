@@ -105,7 +105,7 @@ var buffer = function(txt, font){
 
 		// console.log(eightSpiData);
 
-		spiData = eightSpiData;
+		return eightSpiData;
 	};
 
 	moveLeft = function(){
@@ -133,13 +133,15 @@ var buffer = function(txt, font){
 			dataArr[index] = chunk(8, row);
 		});
 
-		buildSpiData();
+		console.log(dataArr[0][0]);
+
+		this.spiData = buildSpiData();
 	};
 
-	buildSpiData();
+	// buildSpiData();
 
 	return {
-		spiData: spiData,
+		spiData: buildSpiData(),
 		moveLeft: moveLeft
 	};
 
