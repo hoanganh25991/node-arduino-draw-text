@@ -10,7 +10,8 @@ var buffer = function(txt, font){
 	var spiData;
 	var moveLeft;
 
-	var charArr = txt.split('');
+	//[][][][]=DC, the first one is the last one
+	var charArr = txt.split('').reverse();
 
 	dataArr = [];
 

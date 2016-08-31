@@ -41,14 +41,14 @@ board.on("ready", function(){
 		});
 	};
 
-	var buffer = bufferF('abcd', matrixFont);
+	var buffer = bufferF('mano', matrixFont);
 
 	// console.log(buffer.spiData);
 
 	drawText(buffer.spiData);
 	buffer.moveLeft();
 
-	board.loop(5000, function(){
+	board.loop(300, function(){
 		drawText(buffer.spiData);
 		buffer.moveLeft();
 	});
