@@ -157,8 +157,8 @@ var buffer = function(txt, font, numOfDevices){
 			row.push(row0);
 		});
 
-		console.log('memory > row > length: ', memory[0].length);
-		console.log('memory > row: ', memory[0]);
+		// console.log('memory > row > length: ', memory[0].length);
+		// console.log('memory > row: ', memory[0]);
 
 		//build back to dataArr
 		// memory.forEach(function(row, index){

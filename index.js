@@ -1,6 +1,7 @@
 var five = require('johnny-five');
 var board = new five.Board({ port: 'COM7' });
-var drawText = require('./draw-text');
+// var drawText = require('./draw-text');
+var drawTxt = require('./draw-text-v2');
 
 board.on('ready', function() {
 	var matrix = new five.Led.Matrix({
@@ -13,27 +14,14 @@ board.on('ready', function() {
 	});
 	matrix.on();
 
-	// for(var i = 0; i < matrix.devices; i++){
-	// 	matrix.on(i);
-	// }
+	matrix.board = board;
 
-	matrix.drawText = drawText.bind(matrix);
+	matrix.MATRIX_CHARS = five.LedControl.MATRIX_CHARS;
 
-	var buffer = require('./buffer')(
-						'123456789',
-						five.LedControl.MATRIX_CHARS,
-						matrix.devices
-					);
-
-	board.loop(500, function(){
-		// console.log(buffer.spiData[0]);
-		matrix.drawText(buffer.spiData);
-		buffer.moveLeft();
-	});
+	matrix.drawText = drawTxt.bind(matrix);
 
 	this.repl.inject({
-		matrix: matrix,
-		buffer: buffer
+		matrix: matrix
 	});
 
 });
