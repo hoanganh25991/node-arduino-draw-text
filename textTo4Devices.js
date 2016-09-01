@@ -1,5 +1,5 @@
 var textTo4Devices = function(spiData, matrix){
-	matrix.clear();
+	// matrix.clear();
 	// spiData = [123,1,123,1,123,1,123,1];
 
 	matrix.io.digitalWrite(matrix.pins.cs, matrix.io.LOW);
